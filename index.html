@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fuel Prices Ireland</title>
+  <meta name="description" content="Compare fuel prices across Ireland and find the cheapest petrol and diesel stations." />
+  <style>
+    :root{
+      --bg:#f3f5f7;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --text:#111827;
+      --line:#e5e7eb;
+      --line-2:#d1d5db;
+      --green:#0f6e56;
+      --green-2:#1d9e75;
+      --green-soft:#e8f7f2;
+      --blue:#185fa5;
+      --blue-soft:#eaf3fb;
+      --shadow:0 10px 30px rgba(16,24,40,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at top right, #ffffff 0%, #f7f8fa 30%, #f3f5f7 65%, #eef1f4 100%);
+      color:var(--text);
+      min-height:100vh;
+    }
+    a{color:inherit}
+    .shell{max-width:1180px;margin:0 auto;padding:20px 14px 40px}
+    .app{
+      background:rgba(255,255,255,.82);
+      backdrop-filter: blur(8px);
+      border:1px solid rgba(255,255,255,.75);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .hero{
+      padding:30px 22px 22px;
+      background:linear-gradient(180deg,#ffffff 0%, #f9fbfb 100%);
+      border-bottom:1px solid var(--line);
+    }
+    .topline{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      margin-bottom:18px;flex-wrap:wrap;
+    }
+    .brand-chip{
+      display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:999px;
+      background:#fff;border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.04);
+      font-weight:700;font-size:14px;
+    }
+    .brand-dot{
+      width:12px;height:12px;border-radius:50%;
+      background:linear-gradient(135deg,var(--green),var(--green-2));
+      box-shadow:0 0 0 4px var(--green-soft);
+    }
+    .status{
+      font-size:12px;color:var(--muted);padding:9px 12px;border-radius:999px;background:#fff;border:1px solid var(--line);
+    }
+    .hero h1{
+      margin:0;text-align:center;font-size:clamp(30px,4vw,46px);line-height:1.05;letter-spacing:-0.03em;
+    }
+    .hero p{
+      margin:12px auto 0;max-width:760px;text-align:center;color:var(--muted);font-size:15px;line-height:1.6;
+    }
+    .hero-cta{
+      margin:18px auto 0;
+      display:flex;justify-content:center;gap:10px;flex-wrap:wrap;
+    }
+    .cta{
+      display:inline-flex;align-items:center;justify-content:center;
+      min-height:46px;padding:0 16px;border-radius:14px;border:1px solid var(--line-2);
+      background:#fff;text-decoration:none;font-weight:700;font-size:14px;
+    }
+    .cta.primary{
+      background:linear-gradient(135deg,var(--green),var(--green-2));
+      color:#fff;border:none;box-shadow:0 10px 20px rgba(15,110,86,.22);
+    }
+    .content{padding:18px}
+    .stats{
+      display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:12px;margin-bottom:16px;
+    }
+    .stat{
+      background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px 16px;
+      box-shadow:0 3px 12px rgba(16,24,40,.04);
+    }
+    .stat .k{color:var(--muted);font-size:12px;margin-bottom:6px}
+    .stat .v{font-size:22px;font-weight:800;letter-spacing:-0.03em}
+    .panel{
+      background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;
+      box-shadow:0 3px 12px rgba(16,24,40,.04);margin-bottom:16px;
+    }
+    .grid-2{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+    .group-title{font-size:13px;font-weight:700;color:#374151;margin:0 0 10px}
+    .filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+    .chips,.seg{display:flex;gap:8px;flex-wrap:wrap}
+    button,select{font:inherit}
+    .chip,.seg button,.sort button,.show-more{cursor:pointer;transition:.18s ease}
+    .chip{
+      border:1px solid var(--line-2);background:#fff;color:#374151;padding:10px 14px;border-radius:999px;
+      font-size:13px;font-weight:600;
+    }
+    .chip.active{
+      background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 8px 18px rgba(15,110,86,.22);
+    }
+    .seg{
+      background:#f7f8fa;border:1px solid var(--line);padding:4px;border-radius:14px;
+    }
+    .seg button{
+      border:none;background:transparent;color:#4b5563;padding:10px 12px;border-radius:10px;font-size:13px;
+      font-weight:700;min-width:110px;
+    }
+    .seg button.active{background:#fff;color:var(--green);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+    .selectors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .selectors select{
+      width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line-2);background:#fff;color:#111827;outline:none;
+    }
+    .sort{display:flex;gap:8px;flex-wrap:wrap}
+    .sort button{
+      border:1px solid var(--line-2);background:#fff;color:#374151;padding:9px 12px;border-radius:12px;font-size:12px;font-weight:700;
+    }
+    .sort button.active{background:#eef8f4;color:var(--green);border-color:#b9e3d6}
+    .avg-list{display:grid;gap:10px}
+    .avg-pill{
+      background:#f8fafb;border:1px solid var(--line);padding:12px 14px;border-radius:14px;display:flex;
+      justify-content:space-between;gap:10px;font-size:13px;color:#4b5563;
+    }
+    .avg-pill strong{color:#111827}
+    .countline{
+      display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--muted);font-size:13px;
+      margin:2px 2px 12px;flex-wrap:wrap;
+    }
+    .list{display:flex;flex-direction:column;gap:10px}
+    .card{
+      background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px;box-shadow:0 3px 12px rgba(16,24,40,.04);
+      display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
+    }
+    .card.cheapest{border-color:#b8e3d6;box-shadow:0 12px 26px rgba(15,110,86,.10)}
+    .rank{
+      width:34px;height:34px;border-radius:12px;background:#f7f8fa;border:1px solid var(--line);
+      display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#4b5563;flex-shrink:0;
+    }
+    .station{display:flex;align-items:center;gap:12px;min-width:0}
+    .logo-wrap{
+      width:50px;height:50px;border-radius:16px;background:#fff;border:1px solid var(--line);
+      display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;
+    }
+    .logo-wrap img{width:38px;height:38px;object-fit:contain;display:block}
+    .logo-fallback{
+      width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:12px;
+      font-weight:800;color:#fff;background:linear-gradient(135deg,#1f8a6b,#0f6e56);
+    }
+    .meta{min-width:0}
+    .name-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:3px}
+    .station-name{font-size:15px;font-weight:800;color:#111827}
+    .address{
+      color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+    }
+    .subline{margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:11px;color:#6b7280}
+    .badge{
+      padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.02em;border:1px solid transparent;
+    }
+    .badge.green{background:#e8f7f2;color:#0b5c47;border-color:#b9e3d6}
+    .badge.blue{background:var(--blue-soft);color:#0c447c;border-color:#cfe2f6}
+    .badge.gray{background:#f4f5f7;color:#4b5563;border-color:#e5e7eb}
+    .prices{display:grid;grid-template-columns:repeat(4, minmax(70px,1fr));gap:8px;min-width:420px}
+    .pbox{
+      border:1px solid var(--line);border-radius:14px;padding:10px 8px;text-align:center;background:#fbfcfd;
+    }
+    .pbox .lab{font-size:10px;color:#6b7280;margin-bottom:4px;white-space:nowrap}
+    .pbox .val{font-size:15px;font-weight:800;color:#374151}
+    .pbox.active{background:linear-gradient(180deg,#effaf6,#e8f7f2);border-color:#b9e3d6}
+    .pbox.active .val{color:var(--green);font-size:17px}
+    .show-more{
+      width:100%;margin-top:12px;border:none;background:linear-gradient(135deg,var(--green),var(--green-2));
+      color:#fff;padding:14px 16px;border-radius:16px;font-weight:800;box-shadow:0 10px 20px rgba(15,110,86,.22);
+    }
+    .contact{
+      margin-top:18px;
+      padding:18px;
+      border-radius:22px;
+      background:linear-gradient(180deg,#ffffff 0%, #f8fbfa 100%);
+      border:1px solid var(--line);
+      box-shadow:0 3px 12px rgba(16,24,40,.04);
+    }
+    .contact h3{margin:0 0 8px;font-size:20px}
+    .contact p{margin:0;color:var(--muted);line-height:1.6}
+    .contact-actions{
+      margin-top:14px;
+      display:flex;gap:10px;flex-wrap:wrap;
+    }
+    .contact-link{
+      display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 14px;
+      border-radius:14px;text-decoration:none;font-weight:700;border:1px solid var(--line-2);background:#fff;
+    }
+    .foot{margin-top:14px;text-align:center;color:var(--muted);font-size:12px;line-height:1.6}
+    @media (max-width: 980px){
+      .grid-2{grid-template-columns:1fr}
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .card{grid-template-columns:1fr; align-items:flex-start}
+      .prices{min-width:0; width:100%; grid-template-columns:repeat(2,minmax(0,1fr))}
+      .rank{display:none}
+    }
+    @media (max-width: 640px){
+      .shell{padding:10px 8px 24px}
+      .app{border-radius:22px}
+      .hero{padding:22px 14px 16px}
+      .content{padding:12px}
+      .panel{padding:12px;border-radius:18px}
+      .stats{grid-template-columns:1fr 1fr; gap:10px}
+      .stat{padding:12px}
+      .stat .v{font-size:18px}
+      .selectors{grid-template-columns:1fr}
+      .seg{display:grid;grid-template-columns:1fr 1fr}
+      .seg button{min-width:0}
+      .prices{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .station{align-items:flex-start}
+      .logo-wrap{width:46px;height:46px;border-radius:14px}
+      .logo-wrap img,.logo-fallback{width:34px;height:34px}
+      .address{white-space:normal}
+      .hero-cta,.contact-actions{flex-direction:column}
+      .cta,.contact-link{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="app">
+      <section class="hero">
+        <div class="topline">
+          <div class="brand-chip">
+            <span class="brand-dot"></span>
+            Fuel Prices Ireland
+          </div>
+          <div class="status" id="lastUpdated">Loading...</div>
+        </div>
+
+        <h1>Current Fuel Prices Across Ireland</h1>
+        <p>Compare fuel prices across the Republic of Ireland and Northern Ireland and find cheaper stations faster.</p>
+
+        <div class="hero-cta">
+          <a class="cta primary" href="#stations">View stations</a>
+          <a class="cta" href="#contact">Get your station listed</a>
+        </div>
+      </section>
+
+      <div class="content" id="stations">
+        <div class="stats" id="stats"></div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <h3 class="group-title">Filters</h3>
+
+            <div class="filter-row">
+              <div class="chips" id="regionChips">
+                <button class="chip active" data-region="roi">Republic of Ireland</button>
+                <button class="chip" data-region="ni">Northern Ireland</button>
+                <button class="chip" data-region="all">All Ireland</button>
+              </div>
+            </div>
+
+            <div class="filter-row">
+              <div class="seg" id="fuelSeg">
+                <button class="active" data-fuel="u">Unleaded</button>
+                <button data-fuel="up">Unleaded Plus</button>
+                <button data-fuel="d">Diesel</button>
+                <button data-fuel="dp">Diesel Plus</button>
+              </div>
+            </div>
+
+            <div class="selectors">
+              <select id="brandSel">
+                <option value="all">All brands</option>
+              </select>
+              <select id="countySel">
+                <option value="all">All counties</option>
+              </select>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <h3 class="group-title">Sort by</h3>
+            <div class="sort" id="sortBtns">
+              <button class="active" data-sort="price">Price</button>
+              <button data-sort="brand">Brand</button>
+              <button data-sort="county">County</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3 class="group-title">Average prices</h3>
+            <div class="avg-list" id="avgBar"></div>
+          </div>
+        </div>
+
+        <div class="countline">
+          <div id="countInfo">Loading...</div>
+          <div id="activeSummary"></div>
+        </div>
+
+        <div class="list" id="stationList"></div>
+        <button class="show-more" id="showMoreBtn" style="display:none">Load more stations</button>
+
+        <section class="contact" id="contact">
+          <h3>Want your petrol station listed or updated?</h3>
+          <p>If you want your station added to the website or you want your prices updated, get in touch by email and request a listing update.</p>
+          <div class="contact-actions">
+            <a class="contact-link" href="mailto:your@email.com">your@email.com</a>
+            <a class="contact-link" href="#stations">Back to station list</a>
+          </div>
+        </section>
+
+        <div class="foot" id="footer"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ROI_AVG={u:192,up:207,d:215,dp:230};
+    const NI_AVG={u:153,up:165,d:185,dp:198};
+
+    const LOGOS = {
+      "Circle K":"https://logo.clearbit.com/circlek.com",
+      "Shell":"https://logo.clearbit.com/shell.com",
+      "Texaco":"https://logo.clearbit.com/texaco.com",
+      "Applegreen":"https://logo.clearbit.com/applegreen.ie",
+      "Applegreen M":"https://logo.clearbit.com/applegreen.ie",
+      "Maxol":"https://logo.clearbit.com/maxol.ie",
+      "TOP Oil":"https://logo.clearbit.com/topoil.ie",
+      "Esso":"https://logo.clearbit.com/esso.com",
+      "Centra":"https://logo.clearbit.com/centra.ie",
+      "Spar":"https://logo.clearbit.com/spar.ie",
+      "Mace":"https://logo.clearbit.com/mace.ie",
+      "Statoil":"https://logo.clearbit.com/circlek.ie"
+    };
+
+    const RAW = [
+      {b:'Circle K',l:'Dublin, Stillorgan Rd',co:'Dublin',r:'roi',u:188.9,up:203.9,d:211.9,dp:226.9},
+      {b:'Circle K',l:'Dublin, Tallaght',co:'Dublin',r:'roi',u:189.9,up:204.9,d:212.9,dp:227.9},
+      {b:'Circle K',l:'Dublin, Swords',co:'Dublin',r:'roi',u:190.9,up:205.9,d:213.9,dp:228.9},
+      {b:'Circle K',l:'Dublin, Sandyford',co:'Dublin',r:'roi',u:191.9,up:206.9,d:214.9,dp:229.9},
+      {b:'Circle K',l:'Cork, Mahon',co:'Cork',r:'roi',u:190.9,up:205.9,d:213.9,dp:228.9},
+      {b:'Circle K',l:'Limerick, Ennis Rd',co:'Limerick',r:'roi',u:191.9,up:206.9,d:214.9,dp:229.9},
+      {b:'Circle K',l:'Kerry, Tralee',co:'Kerry',r:'roi',u:193.9,up:208.9,d:216.9,dp:231.9},
+      {b:'Circle K',l:'Kilkenny, Kilkenny City',co:'Kilkenny',r:'roi',u:192.9,up:207.9,d:215.9,dp:230.9},
+      {b:'Shell',l:'Cork, Western Rd',co:'Cork',r:'roi',u:191.9,up:206.9,d:214.9,dp:229.9},
+      {b:'Shell',l:'Dublin, Finglas',co:'Dublin',r:'roi',u:192.9,up:207.9,d:215.9,dp:230.9},
+      {b:'Shell',l:'Wexford, Wexford Town',co:'Wexford',r:'roi',u:193.4,up:208.4,d:216.4,dp:231.4},
+      {b:'Shell',l:'Offaly, Tullamore',co:'Offaly',r:'roi',u:192.9,up:207.9,d:215.9,dp:230.9},
+      {b:'Shell',l:'Carlow, Carlow Town',co:'Carlow',r:'roi',u:193.4,up:208.4,d:216.4,dp:231.4},
+      {b:'Texaco',l:'Limerick, Dublin Rd',co:'Limerick',r:'roi',u:192.9,up:207.9,d:215.9,dp:230.9},
+      {b:'Texaco',l:'Cork, Douglas Rd',co:'Cork',r:'roi',u:191.9,up:206.9,d:214.9,dp:229.9},
+      {b:'Texaco',l:'Dublin, Clonskeagh',co:'Dublin',r:'roi',u:191.9,up:206.9,d:214.9,dp:229.9},
+      {b:'Texaco',l:'Galway, Salthill',co:'Galway',r:'roi',u:193.4,up:208.4,d:216.4,dp:231.4},
+      {b:'Texaco',l:'Wicklow, Arklow',co:'Wicklow',r:'roi',u:193.9,up:208.9,d:216.9,dp:231.9},
+      {b:'Texaco',l:'Tipperary, Nenagh',co:'Tipperary',r:'roi',u:193.4,up:208.4,d:216.4,dp:231.4},
+      {b:'Texaco',l:'Longford, Longford Town',co:'Longford',r:'roi',u:194.9,up:209.9,d:217.9,dp:232.9},
+      {b:'Texaco',l:'Laois, Portlaoise',co:'Laois',r:'roi',u:192.9,up:207.9,d:215.9,dp:230.9},
+      {b:'Applegreen',l:'Dublin, M50 J9',co:'Dublin',r:'roi',u:190.9,up:205.9,d:213.9,dp:228.9},
+      {b:'Applegreen',l:'Dublin, N7 Naas Rd',co:'Dublin',r:'roi',u:190.4,up:205.4,d:213.4,dp:228.4},
+      {b:'Applegreen',l:'Galway, Tuam Rd',co:'Galway',r:'roi',u:192.9,up:207.9,d:216.9,dp:231.9},
+      {b:'Applegreen',l:'Tipperary, Clonmel',co:'Tipperary',r:'roi',u:193.9,up:208.9,d:217.9,dp:232.9},
+      {b:'Applegreen',l:'Monaghan, Monaghan Town',co:'Monaghan',r:'roi',u:193.4,up:208.4,d:216.4,dp:231.4},
+      {b:'Applegreen',l:'Mayo, Castlebar',co:'Mayo',r:'roi',u:194.4,up:209.4,d:217.4,dp:232.4},
+      {b:'Applegreen M',l:'Dublin, Port Tunnel',co:'Dublin',r:'roi',u:189.9,up:204.9,d:212.9,dp:227.9},
+      {b:'Maxol',l:'Waterford, Cork Rd',co:'Waterford',r:'roi',u:193.9,up:208.9,d:217.9,dp:232.9},
+      {b:'Maxol',l:'Galway, Headford Rd',co:'Galway',r:'roi',u:193.4,up:208.4,d:217.4,dp:232.4},
+      {b:'Maxol',l:'Meath, Navan',co:'Meath',r:'roi',u:192.9,up:207.9,d:215.9,dp:230.9},
+      {b:'Maxol',l:'Cavan, Cavan Town',co:'Cavan',r:'roi',u:194.9,up:209.9,d:217.9,dp:232.9},
+      {b:'Maxol',l:'Westmeath, Athlone',co:'Westmeath',r:'roi',u:193.4,up:208.4,d:216.4,dp:231.4},
+      {b:'TOP Oil',l:'Sligo, Pearse Rd',co:'Sligo',r:'roi',u:194.9,up:209.9,d:218.9,dp:233.9},
+      {b:'TOP Oil',l:'Donegal, Letterkenny',co:'Donegal',r:'roi',u:195.9,up:210.9,d:219.9,dp:234.9},
+      {b:'TOP Oil',l:'Leitrim, Carrick-on-Shannon',co:'Leitrim',r:'roi',u:195.4,up:210.4,d:219.4,dp:234.4},
+      {b:'Esso',l:'Dublin, Rathmines',co:'Dublin',r:'roi',u:191.9,up:206.9,d:214.9,dp:229.9},
+      {b:'Esso',l:'Louth, Dundalk',co:'Louth',r:'roi',u:192.9,up:207.9,d:215.9,dp:230.9},
+      {b:'Esso',l:'Cork, Midleton',co:'Cork',r:'roi',u:192.4,up:207.4,d:215.4,dp:230.4},
+      {b:'Centra',l:'Dublin, Clontarf',co:'Dublin',r:'roi',u:192.9,up:207.9,d:215.9,dp:230.9},
+      {b:'Centra',l:'Clare, Ennis',co:'Clare',r:'roi',u:193.9,up:208.9,d:216.9,dp:231.9},
+      {b:'Centra',l:'Mayo, Westport',co:'Mayo',r:'roi',u:194.9,up:209.9,d:217.9,dp:232.9},
+      {b:'Spar',l:'Kildare, Naas',co:'Kildare',r:'roi',u:192.4,up:207.4,d:215.4,dp:230.4},
+      {b:'Spar',l:'Galway, Ballinasloe',co:'Galway',r:'roi',u:193.9,up:208.9,d:216.9,dp:231.9},
+      {b:'Spar',l:'Kildare, Newbridge',co:'Kildare',r:'roi',u:192.9,up:207.9,d:215.9,dp:230.9},
+      {b:'Mace',l:'Roscommon, Roscommon Town',co:'Roscommon',r:'roi',u:194.4,up:209.4,d:217.4,dp:232.4},
+      {b:'Mace',l:'Sligo, Ballymote',co:'Sligo',r:'roi',u:195.4,up:210.4,d:218.4,dp:233.4},
+      {b:'Statoil',l:'Dublin, Blanchardstown',co:'Dublin',r:'roi',u:191.4,up:206.4,d:214.4,dp:229.4},
+      {b:'Circle K',l:'Belfast, Boucher Rd',co:'Antrim',r:'ni',u:149.9,up:161.9,d:181.9,dp:194.9},
+      {b:'Circle K',l:'Londonderry, Waterside',co:'Londonderry',r:'ni',u:151.9,up:163.9,d:183.9,dp:196.9},
+      {b:'Shell',l:'Belfast, Lisburn Rd',co:'Antrim',r:'ni',u:150.9,up:162.9,d:182.9,dp:195.9},
+      {b:'Shell',l:'Lisburn, Hillhall Rd',co:'Antrim',r:'ni',u:150.4,up:162.4,d:182.4,dp:195.4},
+      {b:'Shell',l:'Ballymena, Church St',co:'Antrim',r:'ni',u:152.9,up:164.9,d:184.9,dp:197.9},
+      {b:'Texaco',l:'Derry, Strand Rd',co:'Londonderry',r:'ni',u:152.9,up:164.9,d:184.9,dp:197.9},
+      {b:'Texaco',l:'Enniskillen, Sligo Rd',co:'Fermanagh',r:'ni',u:153.9,up:165.9,d:185.9,dp:198.9},
+      {b:'Applegreen',l:'Newry, Dublin Rd',co:'Down',r:'ni',u:149.9,up:161.9,d:181.9,dp:194.9},
+      {b:'Applegreen',l:'Bangor, Newtownards Rd',co:'Down',r:'ni',u:151.9,up:163.9,d:183.9,dp:196.9},
+      {b:'Maxol',l:'Belfast, Newtownards Rd',co:'Antrim',r:'ni',u:151.9,up:163.9,d:183.9,dp:196.9},
+      {b:'Maxol',l:'Omagh, Market St',co:'Tyrone',r:'ni',u:153.4,up:165.4,d:185.4,dp:198.4},
+      {b:'Maxol',l:'Downpatrick, Scotch St',co:'Down',r:'ni',u:154.9,up:166.9,d:186.9,dp:199.9},
+      {b:'Esso',l:'Armagh, Armagh City',co:'Armagh',r:'ni',u:153.9,up:165.9,d:185.9,dp:198.9},
+      {b:'Esso',l:'Antrim, Antrim Town',co:'Antrim',r:'ni',u:152.4,up:164.4,d:184.4,dp:197.4},
+      {b:'Shell',l:'Armagh, Newry St',co:'Armagh',r:'ni',u:153.4,up:165.4,d:185.4,dp:198.4},
+      {b:'Texaco',l:'Coleraine, Lodge Rd',co:'Londonderry',r:'ni',u:153.9,up:165.9,d:185.9,dp:198.9}
+    ];
+
+    let fuel='u', region='roi', sort='price', showN=12;
+    const fuelNames = {u:'Unleaded',up:'Unleaded Plus',d:'Diesel',dp:'Diesel Plus'};
+
+    function getP(s){ return fuel==='u' ? s.u : fuel==='up' ? s.up : fuel==='d' ? s.d : s.dp; }
+    function currencyLabel(r){ return r === 'ni' ? 'p/L' : 'c/L'; }
+
+    function getFiltered(){
+      const brand = document.getElementById('brandSel').value;
+      const county = document.getElementById('countySel').value;
+      let list = RAW.filter(s => {
+        if(region !== 'all' && s.r !== region) return false;
+        if(brand !== 'all' && s.b !== brand) return false;
+        if(county !== 'all' && s.co !== county) return false;
+        return true;
+      });
+      if(sort === 'price') list.sort((a,b)=>getP(a)-getP(b));
+      if(sort === 'brand') list.sort((a,b)=>a.b.localeCompare(b.b) || getP(a)-getP(b));
+      if(sort === 'county') list.sort((a,b)=>a.co.localeCompare(b.co) || getP(a)-getP(b));
+      return list;
+    }
+
+    function populateBrand(){
+      const sel = document.getElementById('brandSel');
+      const brands = [...new Set(RAW.map(x => x.b))].sort((a,b)=>a.localeCompare(b));
+      sel.innerHTML = '<option value="all">All brands</option>' + brands.map(b => '<option value="'+b+'">'+b+'</option>').join('');
+    }
+
+    function populateCounty(){
+      const sel = document.getElementById('countySel');
+      const counties = [...new Set(RAW.filter(s => region==='all' || s.r===region).map(s => s.co))].sort((a,b)=>a.localeCompare(b));
+      const current = sel.value;
+      sel.innerHTML = '<option value="all">All counties</option>' + counties.map(c => '<option value="'+c+'">'+c+'</option>').join('');
+      if(counties.includes(current)) sel.value = current; else sel.value = 'all';
+    }
+
+    function updateAvg(){
+      const holder = document.getElementById('avgBar');
+      let html = '';
+      if(region === 'roi' || region === 'all'){
+        html += '<div class="avg-pill"><span>ROI average – '+fuelNames[fuel]+'</span><strong>'+ROI_AVG[fuel]+' c/L</strong></div>';
+      }
+      if(region === 'ni' || region === 'all'){
+        html += '<div class="avg-pill"><span>NI average – '+fuelNames[fuel]+'</span><strong>'+NI_AVG[fuel]+' p/L</strong></div>';
+      }
+      holder.innerHTML = html;
+    }
+
+    function updateStats(list){
+      const cheapest = list[0];
+      const cheapestVal = cheapest ? (getP(cheapest).toFixed(1) + ' ' + currencyLabel(cheapest.r)) : '—';
+      const counties = new Set(list.map(x => x.co)).size;
+      const brands = new Set(list.map(x => x.b)).size;
+      const stats = [
+        {k:'Visible stations',v:String(list.length)},
+        {k:'Lowest price',v:cheapestVal},
+        {k:'Brands',v:String(brands)},
+        {k:'Counties',v:String(counties)}
+      ];
+      document.getElementById('stats').innerHTML = stats.map(s =>
+        '<div class="stat"><div class="k">'+s.k+'</div><div class="v">'+s.v+'</div></div>'
+      ).join('');
+    }
+
+    function logoHtml(brand){
+      const src = LOGOS[brand];
+      const short = brand.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();
+      if(!src){ return '<div class="logo-fallback">'+short+'</div>'; }
+      return '<img src="'+src+'" alt="'+brand+' logo" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement(\'div\'),{className:\'logo-fallback\',innerText:\''+short+'\'}))">';
+    }
+
+    function renderList(){
+      const list = getFiltered();
+      const visible = list.slice(0, showN);
+      const box = document.getElementById('stationList');
+      const btn = document.getElementById('showMoreBtn');
+
+      updateStats(list);
+      updateAvg();
+
+      document.getElementById('countInfo').textContent = 'Showing ' + Math.min(showN, list.length) + ' of ' + list.length + ' stations';
+      document.getElementById('activeSummary').textContent =
+        (region==='roi'?'ROI':region==='ni'?'NI':'All Ireland') + ' • ' +
+        fuelNames[fuel] + ' • ' +
+        (sort==='price'?'Sorted by price':sort==='brand'?'Sorted by brand':'Sorted by county');
+
+      box.innerHTML = visible.map((s, i) => {
+        const cheap = i === 0 && sort === 'price';
+        const prices = [['u','Unleaded',s.u],['up','Unl. Plus',s.up],['d','Diesel',s.d],['dp','Dsl. Plus',s.dp]];
+        return '<article class="card '+(cheap ? 'cheapest' : '')+'">' +
+          '<div class="rank">'+(i+1)+'</div>' +
+          '<div class="station">' +
+            '<div class="logo-wrap">'+logoHtml(s.b)+'</div>' +
+            '<div class="meta">' +
+              '<div class="name-row">' +
+                '<div class="station-name">'+s.b+'</div>' +
+                (cheap ? '<span class="badge green">Cheapest</span>' : '') +
+                (s.r === 'ni' ? '<span class="badge blue">NI</span>' : '<span class="badge gray">ROI</span>') +
+              '</div>' +
+              '<div class="address">'+s.l+', Co. '+s.co+'</div>' +
+              '<div class="subline"><span>Demo station pricing</span><span>•</span><span>'+currencyLabel(s.r)+'</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="prices">' +
+            prices.map(p => '<div class="pbox '+(fuel===p[0] ? 'active' : '')+'"><div class="lab">'+p[1]+'</div><div class="val">'+p[2].toFixed(1)+' '+currencyLabel(s.r)+'</div></div>').join('') +
+          '</div>' +
+        '</article>';
+      }).join('');
+
+      if(list.length > showN){
+        btn.style.display = 'block';
+        btn.textContent = 'Load ' + Math.min(12, list.length - showN) + ' more stations';
+      }else{
+        btn.style.display = 'none';
+      }
+
+      const now = new Date();
+      document.getElementById('lastUpdated').textContent =
+        'Last updated: ' + now.toLocaleDateString('en-IE') + ' ' + now.toLocaleTimeString('en-IE',{hour:'2-digit',minute:'2-digit'});
+
+      document.getElementById('footer').innerHTML =
+        'Single file website for launch and testing<br>ROI prices: cent per litre • NI prices: pence per litre • Mobile optimized';
+    }
+
+    function bindEvents(){
+      document.getElementById('regionChips').addEventListener('click', e => {
+        const btn = e.target.closest('[data-region]');
+        if(!btn) return;
+        region = btn.dataset.region;
+        showN = 12;
+        document.querySelectorAll('#regionChips .chip').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        populateCounty();
+        renderList();
+      });
+
+      document.getElementById('fuelSeg').addEventListener('click', e => {
+        const btn = e.target.closest('[data-fuel]');
+        if(!btn) return;
+        fuel = btn.dataset.fuel;
+        showN = 12;
+        document.querySelectorAll('#fuelSeg button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderList();
+      });
+
+      document.getElementById('sortBtns').addEventListener('click', e => {
+        const btn = e.target.closest('[data-sort]');
+        if(!btn) return;
+        sort = btn.dataset.sort;
+        document.querySelectorAll('#sortBtns button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderList();
+      });
+
+      document.getElementById('brandSel').addEventListener('change', () => {
+        showN = 12;
+        renderList();
+      });
+
+      document.getElementById('countySel').addEventListener('change', () => {
+        showN = 12;
+        renderList();
+      });
+
+      document.getElementById('showMoreBtn').addEventListener('click', () => {
+        showN += 12;
+        renderList();
+      });
+    }
+
+    populateBrand();
+    populateCounty();
+    bindEvents();
+    renderList();
+  </script>
+</body>
+</html>
