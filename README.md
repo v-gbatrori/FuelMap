@@ -1,6 +1,6 @@
 # Fuel Prices Ireland
 
-Built for the community — not for advertising.
+Built for the community not for advertising.
 
 A simple and fast fuel price tracker for Ireland.
 
@@ -36,13 +36,13 @@ we want to make fuel prices transparent across all of Ireland.
 
 ## 🌍 Live Website
 
-https://v-gbatrori.github.io/fuel-prices-ireland/
+
 
 ## ⛽ For Petrol Stations
 
 If you own a petrol station and want your prices listed or updated, please contact:
 
-your@email.com
+.....@email.com
 
 ## 📱 Features
 
